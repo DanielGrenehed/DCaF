@@ -27,12 +27,12 @@ processed by the 'D;T;A;' filter would result in:
 In this example the ';' delimiters were replaced by ',', this is the default behavior, if you want a different delimitor use the -j flag followed by the delimitor of your choosing.   
    
 The datatypes currently implemented are:
-| Char | Datatype |
-| --- | --- |
-| D | Date |
-| T | Time |
-| N | Number |
-| I | Integer |
-| A | Any |
+| Char | Datatype | Example |
+| --- | --- | --- |
+| D | Date | 1997-03-02 |
+| T | Time | 19:30:25 |
+| N | Number | -3.64 |
+| I | Integer | -84 |
+| A | Any | - |
 
 You can use any non-alphanumeric symbol as a delimiter.
