@@ -39,7 +39,7 @@ func MatchAll() (Match) {
 	return func(s string) bool {return true}
 }
 
-func getRegExString(_type rune) Match {
+func getMatchingFunction(_type rune) Match {
 	switch _type {
 	case 'D':
 		return MatchDate()
@@ -73,22 +73,22 @@ func constructDataMatcher(patterns string) []DataSlice {
 	var out []DataSlice
 	/*
 		Create array of regex strings to match data in file
-
 	*/
 
 	var vc DataSlice
 	for _, char := range patterns {
 		if isAlphaNumeric(char) {
-			vc.match = getRegExString(char)
-			// get regexp
+			vc.match = getMatchingFunction(char)
 		} else {
-			// use as delimiter
 			vc.delim = char
-			// use vc and reset variable
+			if vc.match == nil {
+				vc.match = MatchAll()
+			}
 			out = append(out, vc)
 			vc = DataSlice{}
 		}
 	}
+
 	if vc.match != nil {
 		out = append(out, vc)
 	}
