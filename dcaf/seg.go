@@ -51,6 +51,7 @@ func getLineJointDesegmenter(rules []LineJoint) (Desegmenter) {
 		if s == nil {
 			return ""
 		}
+
 		out := ""
 		for _, joint := range rules {
 			
@@ -63,6 +64,11 @@ func getLineJointDesegmenter(rules []LineJoint) (Desegmenter) {
 			}
 			//fmt.Println(out)
 		}
+		
+		if len(s) == 1 && len(rules) == 0 {
+			out += s[0]
+		}
+
 		if !strings.HasSuffix(out, "\n") {
 			out += "\n"
 		}
@@ -74,6 +80,12 @@ func getDataSliceSegmenter(data_matcher []DataSlice) (Segmenter) {
 	
 	return func(s string) []string {
 		var segments []string
+		
+		if len(data_matcher) == 0 {
+			segments = append(segments, s)
+			return segments
+		}
+
 		str := s
 		for i, col_match := range data_matcher {
 
