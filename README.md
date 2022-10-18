@@ -32,7 +32,7 @@ The datatypes currently implemented are:
 | D | Date | 1997-03-02 |
 | T | Time | 19:30:25 |
 | N | Number | -3.64 |
-| I | Integer | -84 |
-| A | Any | - |
+| I | Integer | 84 |
+| A | Any | A3 _ test |
 
 You can use any non-alphanumeric symbol as a delimiter.
