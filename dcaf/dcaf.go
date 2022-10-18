@@ -30,27 +30,27 @@ func main() {
 	/*
 		Parse input
 	*/
-	in_file_ptr := flag.String("i", "", "file to read")
-	out_file_ptr := flag.String("o", "", "file to write")
+	input_file_ptr := flag.String("i", "", "file to read")
+	output_file_ptr := flag.String("o", "", "file to write")
 
-	dms_ptr := flag.String("c", "", "format of data in input")
-	djs_ptr := flag.String("r", "", "reconstruction format of line")
+	data_match_string_ptr := flag.String("c", "", "format of data in input")
+	data_join_string_ptr := flag.String("r", "", "reconstruction format of line")
 
-	djoint_ptr := flag.String("j", ",", "default char to join data")
+	default_joint_ptr := flag.String("j", ",", "default char to join data")
 	
 	flag.Parse() 
 
 	/*
 		Create data flow
 	*/
-	data_matcher := constructDataMatcher(*dms_ptr)
+	data_matcher := constructDataMatcher(*data_match_string_ptr)
 	
 
-	data_join_string := *djs_ptr
+	data_join_string := *data_join_string_ptr
 	data_joiner := constructDataJoiner(data_join_string)
 
 	if data_join_string == "" {
-		data_joiner = createMatchingDataJoiner(data_matcher, ([]rune(*djoint_ptr))[0])
+		data_joiner = createMatchingDataJoiner(data_matcher, ([]rune(*default_joint_ptr))[0])
 	}
 
 	seg := getDataSliceSegmenter(data_matcher)
@@ -62,42 +62,42 @@ func main() {
 	*/
 	dir, _ := os.Getwd()
 
-	if len(*in_file_ptr) == 0 {
+	if len(*input_file_ptr) == 0 {
 		fmt.Println("No input file provided")
 		return
 	}
-	if len(*out_file_ptr) == 0 {
+	if len(*output_file_ptr) == 0 {
 		fmt.Println("No output file provided")
 		return
 	}
 
-	input_path := dir + "/" + (*in_file_ptr)
-	rf, err := os.Open(input_path)
+	input_file_path := dir + "/" + (*input_file_ptr)
+	input_file, err := os.Open(input_file_path)
 	if err != nil {
 		fmt.Println(err)
 		return 
 	}
-	r := bufio.NewScanner(rf)
-	r.Split(bufio.ScanLines)
+	input_file_reader := bufio.NewScanner(input_file)
+	input_file_reader.Split(bufio.ScanLines)
 
-	output_path := dir + "/" + (*out_file_ptr)
-	fout, err := os.Create(output_path)
+	output_file_path := dir + "/" + (*output_file_ptr)
+	output_file, err := os.Create(output_file_path)
 	if err != nil {
 		fmt.Println(err)
-		rf.Close()
+		input_file.Close()
 		return
 	}
-	w := bufio.NewWriter(fout)	
+	output_file_writer := bufio.NewWriter(output_file)	
 	
 	/*
 		process data line by line
 	*/
-	process(r, w, reconstructionFilter(seg, des))
+	process(input_file_reader, output_file_writer, reconstructionFilter(seg, des))
 
 	/*
 		clean up
 	*/
-	rf.Close()
-	w.Flush()
-	fout.Close()
+	input_file.Close()
+	output_file_writer.Flush()
+	output_file.Close()
 }
