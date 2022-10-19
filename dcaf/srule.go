@@ -10,7 +10,7 @@ type Match func(string) bool
 /*
 	Match column to regex and delimiter
 */
-type DataSlice struct {
+type SliceRule struct {
 	match Match
 	delim rune
 }
@@ -69,13 +69,13 @@ func isAlphaNumeric(char rune) bool {
 	return false
 }
 
-func constructDataMatcher(patterns string) []DataSlice {
-	var out []DataSlice
+func constructSliceRules(patterns string) []SliceRule {
+	var out []SliceRule
 	/*
 		Create array of regex strings to match data in file
 	*/
 
-	var vc DataSlice
+	var vc SliceRule
 	for _, char := range patterns {
 		if isAlphaNumeric(char) {
 			vc.match = getMatchingFunction(char)
@@ -85,7 +85,7 @@ func constructDataMatcher(patterns string) []DataSlice {
 				vc.match = MatchAll()
 			}
 			out = append(out, vc)
-			vc = DataSlice{}
+			vc = SliceRule{}
 		}
 	}
 

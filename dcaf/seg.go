@@ -4,13 +4,15 @@ import (
 	"strings"
 )
 
-type LineJoint struct {
+type JoinRule struct {
 	segment int
-	delim rune
+	delim string
 }
 
-func constructDataJoiner(pattern string) []LineJoint {
-	var out []LineJoint
+
+
+func constructJoinRules(pattern string) []JoinRule {
+	var out []JoinRule
 	/*
 		Convert pattern string to a series of LineJoints 
 		where all number-sequences becomes a LineJoints.segment
@@ -20,13 +22,13 @@ func constructDataJoiner(pattern string) []LineJoint {
 	return out
 }
 
-func createMatchingDataJoiner(data_matcher []DataSlice, joint rune) []LineJoint {
-	var out []LineJoint
-	for i, _ := range data_matcher {
-		if i == len(data_matcher)-1 {
-			out = append(out, LineJoint{i, rune(0)})
+func createMatchingJoinRules(slice_rules []SliceRule, joint string) []JoinRule {
+	var out []JoinRule
+	for i, _ := range slice_rules {
+		if i == len(slice_rules)-1 {
+			out = append(out, JoinRule{i, ""})
 		} else {
-			out = append(out, LineJoint{i, joint})
+			out = append(out, JoinRule{i, joint})
 		}
 		//fmt.Println(out[i])
 	}
@@ -45,7 +47,7 @@ type Segmenter func(string) []string
 */
 type Desegmenter func([]string) string 
 
-func getLineJointDesegmenter(rules []LineJoint) (Desegmenter) {
+func getJoinRuleDesegmenter(rules []JoinRule) (Desegmenter) {
 	
 	return func(s []string) string {
 		if s == nil {
@@ -56,13 +58,8 @@ func getLineJointDesegmenter(rules []LineJoint) (Desegmenter) {
 		for _, joint := range rules {
 			
 			if joint.segment >= 0 && joint.segment < len(s) {
-				out += s[joint.segment] 
-				if joint.delim != rune(0) {
-					out += string(joint.delim)
-				}
-				
+				out += s[joint.segment] + joint.delim
 			}
-			//fmt.Println(out)
 		}
 		
 		if len(s) == 1 && len(rules) == 0 {
@@ -76,23 +73,23 @@ func getLineJointDesegmenter(rules []LineJoint) (Desegmenter) {
 	}
 }
 
-func getDataSliceSegmenter(data_matcher []DataSlice) (Segmenter) {
+func getSliceRuleSegmenter(slice_rules []SliceRule) (Segmenter) {
 	
 	return func(s string) []string {
 		var segments []string
 		
-		if len(data_matcher) == 0 {
+		if len(slice_rules) == 0 {
 			segments = append(segments, s)
 			return segments
 		}
 
 		str := s
-		for i, col_match := range data_matcher {
+		for i, rule := range slice_rules {
 
 			/*
 				'If sep does not appear in s, cut returns s, "", false. '
 			*/
-			segment, rest, found := strings.Cut(str, string(col_match.delim))
+			segment, rest, found := strings.Cut(str, string(rule.delim))
 
 			/*
 				Get all the wanted columns of data in file
@@ -107,8 +104,8 @@ func getDataSliceSegmenter(data_matcher []DataSlice) (Segmenter) {
 				use the remaning string as the column data
 
 			*/
-			if i == len(data_matcher)-1 || found {
-				if col_match.match(segment) {
+			if i == len(slice_rules)-1 || found {
+				if rule.match(segment) {
 					segments = append(segments, segment)
 				} else {
 					return nil
@@ -117,7 +114,7 @@ func getDataSliceSegmenter(data_matcher []DataSlice) (Segmenter) {
 				return nil
 			}
 
-			str= rest
+			str = rest
 		}
 		return segments
 	}

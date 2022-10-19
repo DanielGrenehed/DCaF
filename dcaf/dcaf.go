@@ -25,17 +25,17 @@ func reconstructionFilter(seg Segmenter, des Desegmenter) (Filter) {
 	return func(s string) string {return des(seg(s))}
 }
 
-func constructFilter(match_str string, join_str string, join_delim rune) (Filter) {
-	data_matcher := constructDataMatcher(match_str)
+func constructFilter(match_str string, join_str string, join_delim string) (Filter) {
+	slice_rules := constructSliceRules(match_str)
 	
-	data_joiner := constructDataJoiner(join_str)
+	data_joiner := constructJoinRules(join_str)
 
 	if join_str == "" {
-		data_joiner = createMatchingDataJoiner(data_matcher, join_delim)
+		data_joiner = createMatchingJoinRules(slice_rules, join_delim)
 	}
 
-	segmenter := getDataSliceSegmenter(data_matcher)
-	desegmenter := getLineJointDesegmenter(data_joiner)
+	segmenter := getSliceRuleSegmenter(slice_rules)
+	desegmenter := getJoinRuleDesegmenter(data_joiner)
 	return reconstructionFilter(segmenter, desegmenter)
 }
 
@@ -124,7 +124,7 @@ func constructDcafModel() DcafModel {
 	
 	flag.Parse() 
 
-	model.filter = constructFilter(*data_match_string_ptr, *data_join_string_ptr, ([]rune(*default_joint_ptr))[0])
+	model.filter = constructFilter(*data_match_string_ptr, *data_join_string_ptr, *default_joint_ptr)
 
 	/*
 		Open files
@@ -146,7 +146,7 @@ func main() {
 		model.cleanup()
 		return
 	}
-	
+
 	/*
 		process data line by line
 	*/
