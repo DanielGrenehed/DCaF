@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -9,7 +11,30 @@ type JoinRule struct {
 	delim string
 }
 
+func isNumeric(char rune) bool {
+	if char >= rune('0') && char <= rune('9') {
+		return true
+	}
+	return false
+}
 
+func findNextNumeric(start int, str string) int {
+	for pos, char := range str[start:] {
+		if isNumeric(char) {
+			return start + pos
+		}
+	}
+	return -1
+}
+
+func findNextNonNumeric(start int, str string) int {
+	for pos, char := range str[start:] {
+		if !isNumeric(char) {
+			return start + pos
+		}
+	}
+	return -1
+}
 
 func constructJoinRules(pattern string) []JoinRule {
 	var out []JoinRule
@@ -18,7 +43,32 @@ func constructJoinRules(pattern string) []JoinRule {
 		where all number-sequences becomes a LineJoints.segment
 		and the symbol(s) following the number becomes the LineJoints.delim
 	*/
+	if len(pattern) == 0 {
+		return out
+	}
 
+	start := findNextNumeric(0, pattern)
+	for start >= 0 {
+		var rule JoinRule
+		n_end := findNextNonNumeric(start, pattern)
+		if n_end == -1 {
+			rule.segment , _ = strconv.Atoi(pattern[start:len(pattern)])
+			out = append(out, rule)
+			break
+		}
+
+		rule.segment , _ = strconv.Atoi(pattern[start:n_end])
+
+		d_start := findNextNumeric(n_end, pattern)
+		if d_start == -1 {
+			rule.delim = pattern[n_end:len(pattern)]			
+		} else {
+			rule.delim = pattern[n_end:d_start]
+		}
+		
+		out = append(out, rule)
+		start = d_start
+	}
 	return out
 }
 
@@ -59,6 +109,8 @@ func getJoinRuleDesegmenter(rules []JoinRule) (Desegmenter) {
 			
 			if joint.segment >= 0 && joint.segment < len(s) {
 				out += s[joint.segment] + joint.delim
+			} else {
+				fmt.Println("Invalid segment ", joint.segment)
 			}
 		}
 		

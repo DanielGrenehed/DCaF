@@ -43,7 +43,6 @@ The datatypes currently implemented are:
 You can use any non-alphanumeric symbol as a delimiters, including whitespace. If a datatype was to be provided after another datatype without a dilimiter symbol, only the later is tested. `'TD;'` will only produce a valid line if the field contains a Date, and only a Date. Having consecutive delimiters will result in the data being match with the Any(A) Datatype, `';A;'` is hence equivalent to `';;'`.
 
 ### Line Reconstruction
-THIS FUNCTION IS YET TO BE ADDED
 ```
 ... -r '1,0 2,'
 ```
