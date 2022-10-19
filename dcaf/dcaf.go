@@ -67,7 +67,7 @@ func (model DcafModel) setInputFile(dir string, file string) DcafModel {
 	return model
 }
 
-func (model DcafModel) setOutputFile(dir string, file string) DcafModel {
+func (model DcafModel) setOutputFile(dir string, file string, append bool) DcafModel {
 	if model.fail {
 		return model
 	}
@@ -77,7 +77,15 @@ func (model DcafModel) setOutputFile(dir string, file string) DcafModel {
 		return model
 	}
 	output_file_path := dir + "/" + (file)
-	output_file, err := os.Create(output_file_path)
+
+	var output_file *os.File
+	var err error
+	if append {
+		output_file, err = os.OpenFile(output_file_path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+	} else {
+		output_file, err = os.Create(output_file_path)
+	}
+	
 	if err != nil {
 		model.fail = true
 		model.message = err.Error()
@@ -101,6 +109,7 @@ func constructDcafModel() DcafModel {
 	data_match_string_ptr := flag.String("c", "", "format of data in input")
 	data_join_string_ptr := flag.String("r", "", "reconstruction format of line")
 	default_joint_ptr := flag.String("j", ",", "default char to join data")
+	append_flag_ptr := flag.Bool("a", false, "use flag to append to file")
 
 	flag.Parse() 
 	//fmt.Println(rest)
@@ -112,7 +121,7 @@ func constructDcafModel() DcafModel {
 	dir, _ := os.Getwd()
 
 	model = model.setInputFile(dir, *input_file_ptr)
-	model = model.setOutputFile(dir, *output_file_ptr)
+	model = model.setOutputFile(dir, *output_file_ptr, *append_flag_ptr)
 	return model
 }
 

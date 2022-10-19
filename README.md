@@ -44,10 +44,14 @@ You can use any non-alphanumeric symbol as a delimiters, including whitespace. I
 
 #### Custom Filters
 You can also create custom filters by adding any letter followed by `:` and a regex string at the end of the command, using the letter in the filtration string will match the field to the regex. `... f:'[Gg]'` will hence create a filter that excludes any line not containing `G` or `g` for the set field(s). Note that there is no separation between the filter defenition and its declaration, writing `f: '[Gg]'` will create a filter (f) that matches any value.   
-You can use any letter for your custom filters, the default datatypes will however not be replaced. Creating a filter `D:'[Ff]rog'`, will create a filter, but using `D` in the data filter string will still match against a Date datatype.
+You can use any letter for your custom filters, the default datatypes will however not be replaced. Creating a filter `D:'[Ff]rog'`, will create a filter, but using `D` in the data filter string will still match against a Date datatype.   
 
 
 ### Line Reconstruction
+You can set custom line reconstruction options using `-r` followed by a string containing the order you want to assemble the segments in and with which delimiters to join the segments. 
 ```
 ... -r '1,0 2,'
 ```
+
+### Append to File
+You can use the `-a` flag to append to output file instead of overwriting it.
