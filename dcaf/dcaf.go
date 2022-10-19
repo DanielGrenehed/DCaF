@@ -7,10 +7,8 @@ import (
 	"os"
 )
 
-type Filter func(string) string
-
 /*
-	Write filtered lines 
+	Write filtered lines
 */
 func process(r *bufio.Scanner, w *bufio.Writer, f Filter) {
 	for r.Scan() {
@@ -19,24 +17,6 @@ func process(r *bufio.Scanner, w *bufio.Writer, f Filter) {
 			w.WriteString(line)
 		}
 	}
-}
-
-func reconstructionFilter(seg Segmenter, des Desegmenter) (Filter) {
-	return func(s string) string {return des(seg(s))}
-}
-
-func constructFilter(match_str string, join_str string, join_delim string) (Filter) {
-	slice_rules := constructSliceRules(match_str)
-	
-	data_joiner := constructJoinRules(join_str)
-
-	if join_str == "" {
-		data_joiner = createMatchingJoinRules(slice_rules, join_delim)
-	}
-
-	segmenter := getSliceRuleSegmenter(slice_rules)
-	desegmenter := getJoinRuleDesegmenter(data_joiner)
-	return reconstructionFilter(segmenter, desegmenter)
 }
 
 type Function func() ()
@@ -121,10 +101,10 @@ func constructDcafModel() DcafModel {
 	data_match_string_ptr := flag.String("c", "", "format of data in input")
 	data_join_string_ptr := flag.String("r", "", "reconstruction format of line")
 	default_joint_ptr := flag.String("j", ",", "default char to join data")
-	
-	flag.Parse() 
 
-	model.filter = constructFilter(*data_match_string_ptr, *data_join_string_ptr, *default_joint_ptr)
+	flag.Parse() 
+	//fmt.Println(rest)
+	model.filter = constructFilter(*data_match_string_ptr, *data_join_string_ptr, *default_joint_ptr, flag.Args())
 
 	/*
 		Open files

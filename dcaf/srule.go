@@ -39,8 +39,18 @@ func MatchAll() (Match) {
 	return func(s string) bool {return true}
 }
 
-func getMatchingFunction(_type rune) Match {
-	switch _type {
+func MatchRegex(regex string) (Match) {
+	re := regexp.MustCompile(regex)
+	return func(s string) bool {return re.MatchString(s)}
+}
+
+type CustomType struct {
+	regex string
+	symbol rune
+}
+
+func getMatchingFunction(symbol rune, types []CustomType) Match {
+	switch symbol {
 	case 'D':
 		return MatchDate()
 	case 'T':
@@ -52,24 +62,18 @@ func getMatchingFunction(_type rune) Match {
 	case 'A':
 		return MatchAll()
 	}
-	fmt.Println("No match for type", string(_type))
-	return func(s string) bool {return true}
+
+	for _, c_type := range types {
+		if symbol == c_type.symbol {
+			return MatchRegex(c_type.regex)
+		}
+	}
+
+	fmt.Println("No match for type", string(symbol))
+	return MatchAll()
 }
 
-func isAlphaNumeric(char rune) bool {
-	if char >= 'a' && char <= 'z' {
-		return true
-	}
-	if char >= 'A' && char <= 'Z' {
-		return true
-	}
-	if char >= '0' && char <= '9' {
-		return true
-	}
-	return false
-}
-
-func constructSliceRules(patterns string) []SliceRule {
+func constructSliceRules(patterns string, c_types []CustomType) []SliceRule {
 	var out []SliceRule
 	/*
 		Create array of regex strings to match data in file
@@ -78,7 +82,7 @@ func constructSliceRules(patterns string) []SliceRule {
 	var vc SliceRule
 	for _, char := range patterns {
 		if isAlphaNumeric(char) {
-			vc.match = getMatchingFunction(char)
+			vc.match = getMatchingFunction(char, c_types)
 		} else {
 			vc.delim = char
 			if vc.match == nil {
@@ -94,4 +98,27 @@ func constructSliceRules(patterns string) []SliceRule {
 	}
 
 	return out
+}
+
+func removeQuotation(str string) string {
+	re := regexp.MustCompile("^['\"]*['\"]$")
+	if re.MatchString(str) {
+		return str[1:len(str)-1]
+	}
+	return str
+}
+
+func createCustomTypes(input []string) []CustomType {
+	var types []CustomType
+	re := regexp.MustCompile("^[a-zA-Z]:")
+	for _, str := range input {
+		if re.MatchString(str) {
+		
+			var ct CustomType
+			ct.symbol = []rune(str)[0]
+			ct.regex = removeQuotation(str[2:])
+			types = append(types, ct)
+		}
+	}
+	return types
 }

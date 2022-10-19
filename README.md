@@ -42,6 +42,11 @@ The datatypes currently implemented are:
 
 You can use any non-alphanumeric symbol as a delimiters, including whitespace. If a datatype was to be provided after another datatype without a dilimiter symbol, only the later is tested. `'TD;'` will only produce a valid line if the field contains a Date, and only a Date. Having consecutive delimiters will result in the data being match with the Any(A) Datatype, `';A;'` is hence equivalent to `';;'`.
 
+#### Custom Filters
+You can also create custom filters by adding any letter followed by `:` and a regex string at the end of the command, using the letter in the filtration string will match the field to the regex. `... f:'[Gg]'` will hence create a filter that excludes any line not containing `G` or `g` for the set field(s). Note that there is no separation between the filter defenition and its declaration, writing `f: '[Gg]'` will create a filter (f) that matches any value.   
+You can use any letter for your custom filters, the default datatypes will however not be replaced. Creating a filter `D:'[Ff]rog'`, will create a filter, but using `D` in the data filter string will still match against a Date datatype.
+
+
 ### Line Reconstruction
 ```
 ... -r '1,0 2,'
